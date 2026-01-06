@@ -20,6 +20,7 @@ public interface ModConsts {
 		String HAND = "righthanded";
 		String ROTATION = "rotation";
 		String INVENTORY = "inventory";
+		String CREATURE_ATTRIBUTE = "creatureattribute";
 		String SLOT = "slot";
 		String ITEM = "item";
 		
@@ -45,5 +46,14 @@ public interface ModConsts {
 		String SOURCE = "source";
 		String DAMAGE_DEALT = "damageDealt";
 		String DAMAGE_TAKEN = "damageTaken";
+		
+		String UI_ROOT = "ui";
+		String CLEAR_HISTORY = "clearHistory";
+		String HELP_TOOLTIP = "helpTooltip";
+		String POTION_HELP = "potionHelp";
+		String POTION_INPUT_HELP = "potionInputHelp";
+		String POTION_EFFECTS_HELP = "potionEffectsHelp";
+		String ATTRIBUTE_HELP = "attributeHelp";
+		String CLEAR_HISTORY_HELP = "clearHelp";
 	}
 }

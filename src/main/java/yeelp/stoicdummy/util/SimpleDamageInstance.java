@@ -1,18 +1,20 @@
 package yeelp.stoicdummy.util;
 
+import java.util.Iterator;
+import java.util.List;
+
+import com.google.common.collect.Lists;
+
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.text.ITextComponent;
 import yeelp.stoicdummy.ModConsts.DummyNBT;
 import yeelp.stoicdummy.ModConsts.TranslationKeys;
-import yeelp.stoicdummy.util.Translations.Translator;
 
 public final class SimpleDamageInstance extends AbstractDamageInstance {
 
 	public static final byte ID = (byte) 1;
-	private static final Translator TRANSLATOR = Translations.INSTANCE.getTranslator(TranslationKeys.HISTORY_ROOT);
-	private static final ITextComponent ATTACKER = TRANSLATOR.getComponent(TranslationKeys.ATTACKER);
-	private static final ITextComponent TRUE_ATTACKER = TRANSLATOR.getComponent(TranslationKeys.TRUE_ATTACKER);
+	
 	private static final ITextComponent SOURCE = TRANSLATOR.getComponent(TranslationKeys.SOURCE);
 	private static final ITextComponent DAMAGE_DEALT = TRANSLATOR.getComponent(TranslationKeys.DAMAGE_DEALT);
 	private static final ITextComponent DAMAGE_TAKEN = TRANSLATOR.getComponent(TranslationKeys.DAMAGE_TAKEN);
@@ -26,8 +28,25 @@ public final class SimpleDamageInstance extends AbstractDamageInstance {
 	}
 	
 	@Override
-	public String toString() {
-		return String.format("%s, %s %s, %s %d, %s %d", this.getAttackerString(), SOURCE.getFormattedText(), this.getSource(), DAMAGE_DEALT.getFormattedText(), this.getInitialDamage(), DAMAGE_TAKEN.getFormattedText(), this.getFinalDamage());
+	protected Iterator<String> linesIterator() {
+		List<String> lines = Lists.newArrayList();
+		boolean highlight = true;
+		StringBuilder sb = new StringBuilder();
+		for(String s : this.getAttackerStringComponents()) {
+			if(highlight) {
+				sb = new StringBuilder();
+				sb.append(highlight(s)+SPLIT);
+			}
+			else {
+				sb.append(s);
+				lines.add(sb.toString());
+			}
+			highlight = !highlight;
+		}
+		lines.add(highlight(SOURCE.getFormattedText()) + SPLIT + this.getSource());
+		lines.add(highlight(DAMAGE_DEALT.getFormattedText()) + SPLIT + AbstractDamageInstance.formatDamage(this.getInitialDamage()));
+		lines.add(highlight(DAMAGE_TAKEN.getFormattedText()) + SPLIT + AbstractDamageInstance.formatDamage(this.getFinalDamage()));
+		return lines.iterator();
 	}
 	
 	@Override
@@ -42,12 +61,7 @@ public final class SimpleDamageInstance extends AbstractDamageInstance {
 		return compound;
 	}
 	
-	private String getAttackerString() {
-		if(this.getImmediateAttacker().equals(this.getTrueAttacker())) {
-			return String.format("%s %s", ATTACKER.getFormattedText(), this.getImmediateAttacker());
-		}
-		return String.format("%s %s, %s %s", ATTACKER.getFormattedText(), this.getImmediateAttacker(), TRUE_ATTACKER.getFormattedText(), this.getTrueAttacker());
-	}
+	
 	
 	public static final class SimpleDamageInstanceBuilder extends AbstractDamageInstanceBuilder {
 		public SimpleDamageInstanceBuilder(DamageSource src, float initialDamage) {

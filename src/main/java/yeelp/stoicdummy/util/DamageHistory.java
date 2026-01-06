@@ -1,7 +1,9 @@
 package yeelp.stoicdummy.util;
 
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.Collections;
+import java.util.Deque;
+import java.util.Iterator;
+import java.util.Optional;
 
 import com.google.common.collect.Lists;
 
@@ -11,21 +13,41 @@ import yeelp.stoicdummy.ModConsts.DummyNBT;
 import yeelp.stoicdummy.SDLogger;
 import yeelp.stoicdummy.config.ModConfig;
 
-public final class DamageHistory extends LinkedList<AbstractDamageInstance> {
+public final class DamageHistory implements Iterable<AbstractDamageInstance> {
 
-	private final Queue<AbstractDamageInstance> delegate;
+	private final Deque<AbstractDamageInstance> delegate;
 	
 	public DamageHistory() {
 		this.delegate = Lists.newLinkedList();
 	}
 
-	@Override
 	public boolean add(AbstractDamageInstance e) {
 		boolean result = this.delegate.add(e);
 		if(this.size() > ModConfig.dummy.historyLength) {
-			this.poll();
+			this.delegate.poll();
 		}
 		return result;
+	}
+	
+	public int size() {
+		return this.delegate.size();
+	}
+	
+	public void clear() {
+		this.delegate.clear();
+	}
+	
+	public boolean isEmpty() {
+		return this.size() == 0;
+	}
+	
+	public Optional<AbstractDamageInstance> getLatestEntry() {
+		return Optional.ofNullable(this.delegate.peekLast());
+	}
+	
+	@Override
+	public Iterator<AbstractDamageInstance> iterator() {
+		return this.delegate.iterator();
 	}
 	
 	public NBTTagList writeToNBT() {
@@ -47,4 +69,5 @@ public final class DamageHistory extends LinkedList<AbstractDamageInstance> {
 			}
 		});
 	}
+
 }

@@ -23,24 +23,30 @@ import scala.actors.threadpool.Arrays;
 import yeelp.stoicdummy.ModConsts;
 import yeelp.stoicdummy.SDLogger;
 import yeelp.stoicdummy.network.MessageType;
+import yeelp.stoicdummy.network.StoicDummyCreatureAttributeMessage;
 import yeelp.stoicdummy.network.StoicDummyPotionMessage;
+import yeelp.stoicdummy.util.AbstractDamageInstance;
+import yeelp.stoicdummy.util.DamageHistory;
 
 public class ContainerStoicDummy extends Container {
 	
 	private final StoicDummyInventory inventory;
 	private String[] potionEffectToAdd;
 	private int amplifierSelected = -1;
+	private List<DummySlot> dummySlots;
 	private static final int SLOT_WIDTH = 18;
 	private static final int X_PADDING = 8;
-	private static final int Y_PADDING = 102;
+	private static final int Y_PADDING = 172;
 	private static final int HOTBAR_Y_OFFSET = 40;
-	private static final int DUMMY_INV_Y_OFFSET = -24;
+	private static final int DUMMY_INV_Y_OFFSET = -84;
 	
 	public ContainerStoicDummy(IInventory playerInventory, StoicDummyInventory dummyInventory) {
 		this.inventory = dummyInventory;
+		this.dummySlots = Lists.newArrayList();
 		
-		ModConsts.ARMOR_SLOTS.forEach((slot) -> this.addSlotToContainer(new DummySlot.ArmorSlot(dummyInventory, slot)));
-		ModConsts.HAND_SLOTS.forEach((slot) -> this.addSlotToContainer(new DummySlot.HandSlot(dummyInventory, slot)));
+		ModConsts.ARMOR_SLOTS.forEach((slot) -> this.dummySlots.add(new DummySlot.ArmorSlot(dummyInventory, slot)));
+		ModConsts.HAND_SLOTS.forEach((slot) -> this.dummySlots.add(new DummySlot.HandSlot(dummyInventory, slot)));
+		this.dummySlots.forEach(this::addSlotToContainer);
 		
 		for(int row = 0; row < 3; row++) {
 			for(int index = 0; index < 9; this.addSlotToContainer(new Slot(playerInventory, index + (row + 1) * 9, X_PADDING + index++ * SLOT_WIDTH, Y_PADDING + (row - 1) * SLOT_WIDTH)));
@@ -103,7 +109,15 @@ public class ContainerStoicDummy extends Container {
 	}
 	
 	public void setEnumCreatureAttribute(EnumCreatureAttribute attribute) {
-		this.inventory.dummyOwner.setEnumCreatureAttribute(attribute);
+		MessageType.SET_ATTRIBUTE.sendMessage(this.inventory.dummyOwner, new StoicDummyCreatureAttributeMessage(attribute));
+	}
+	
+	public void clearHistory() {
+		MessageType.CLEAR_HISTORY.sendMessage(this.inventory.dummyOwner);
+	}
+	
+	public Iterable<AbstractDamageInstance> getDamageHistory() {
+		return this.inventory.dummyOwner.getDamageHistory();
 	}
 	
 	public Iterable<PotionEffect> getPotionEffects() {
@@ -114,9 +128,37 @@ public class ContainerStoicDummy extends Container {
 		return effects;
 	}
 	
+	@Override
+	public ItemStack transferStackInSlot(EntityPlayer playerIn, int index) {
+		Slot slot = this.getSlot(index);
+		ItemStack copy = ItemStack.EMPTY;
+		if(slot != null && slot.getHasStack()) {
+			ItemStack stack = slot.getStack();
+			copy = stack.copy();
+			if(slot instanceof DummySlot && !this.mergeItemStack(stack, 6, this.inventorySlots.size(), false)) {
+				return ItemStack.EMPTY;
+			}
+			else if(!mergeItemStack(stack, 0, 6, false)){
+				return ItemStack.EMPTY;
+			}
+			if(stack.isEmpty()) {
+				slot.putStack(ItemStack.EMPTY);
+			}
+			else {
+				slot.onSlotChanged();
+			}
+			if(copy.getCount() == stack.getCount()) {
+				return ItemStack.EMPTY;
+			}
+		}
+		return copy;
+	}
+	
 	private static abstract class DummySlot extends Slot {
+		protected final EntityEquipmentSlot slot;
 		public DummySlot(IInventory inventory, EntityEquipmentSlot slot, int x, int y) {
 			super(inventory, slot.getSlotIndex(), x, y);
+			this.slot = slot;
 		}
 		
 		protected abstract boolean isAffectedByBindingCurse();
@@ -173,10 +215,8 @@ public class ContainerStoicDummy extends Container {
 		
 		
 		private static final class ArmorSlot extends DummySlot {
-			private final EntityEquipmentSlot slot;
 			public ArmorSlot(IInventory inventory, EntityEquipmentSlot slot) {
 				super(inventory, slot, X_PADDING, computeYPos(slot.getSlotIndex()));
-				this.slot = slot;
 			}
 			
 			@Override

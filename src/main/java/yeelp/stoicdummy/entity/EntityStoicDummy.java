@@ -6,6 +6,7 @@ import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
+import com.google.common.base.Functions;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Maps;
 
@@ -46,6 +47,7 @@ import yeelp.stoicdummy.StoicDummy;
 import yeelp.stoicdummy.config.ModConfig;
 import yeelp.stoicdummy.proxy.Proxy;
 import yeelp.stoicdummy.util.AbstractDamageInstance.AbstractDamageInstanceBuilder;
+import yeelp.stoicdummy.util.AbstractDamageInstance;
 import yeelp.stoicdummy.util.DamageHistory;
 import yeelp.stoicdummy.util.InventoryUtils;
 import yeelp.stoicdummy.util.SimpleDamageInstance.SimpleDamageInstanceBuilder;
@@ -182,16 +184,26 @@ public final class EntityStoicDummy extends EntityLivingBase implements IEntityA
 			this.setDead();
 		}
 		else {
-			this.history.add(this.damageBuilder.build());			
+			this.history.add(this.damageBuilder.build());
+			this.history.getLatestEntry().map(Functions.toStringFunction()).ifPresent(SDLogger::debug);
 		}
+	}
+	
+	public Iterable<AbstractDamageInstance> getDamageHistory() {
+		return this.history;
+	}
+	
+	public void clearDamageHistory() {
+		this.history.clear();
 	}
 
 	@Override
 	public boolean processInitialInteract(EntityPlayer player, EnumHand hand) {
-		if(player.world.isRemote) {
-			return false;
+		if(!player.isSneaking() && player.getHeldItemMainhand().getItem() != Items.NAME_TAG && !this.isDead) {
+			player.openGui(StoicDummy.instance, this.getEntityId(), this.world, 0, 0, 0);
+			return true;
 		}
-		if(player.isSneaking() && player.getHeldItemMainhand().isEmpty() && !this.isDead) {
+		if(!player.world.isRemote && player.isSneaking() && player.getHeldItemMainhand().isEmpty() && !this.isDead) {
 			this.dropEquipment(false, 0);
 			this.entityDropItem(new ItemStack(Proxy.dummyItem), 0.5f);
 			this.world.playSound(null, this.getPosition(), SoundEvents.ENTITY_ARMORSTAND_BREAK, SoundCategory.BLOCKS, 0.75f, 0.6f);
@@ -201,12 +213,9 @@ public final class EntityStoicDummy extends EntityLivingBase implements IEntityA
 			this.setDead();
 			return true;
 		}
-		if(!player.isSneaking() && player.getHeldItemMainhand().getItem() != Items.NAME_TAG && !this.isDead) {
-			player.openGui(StoicDummy.instance, this.getEntityId(), this.world, 0, 0, 0);
-			return true;
-		}
 		return false;
 	}
+	
 
 	@Override
 	protected void dropEquipment(boolean wasRecentlyHit, int lootingModifier) {
@@ -226,20 +235,20 @@ public final class EntityStoicDummy extends EntityLivingBase implements IEntityA
 	
 	
 	//TODO is this rotation overriding needed? We have updateDistance which seems to work
-	@Override
-	protected void setRotation(float yaw, float pitch) {
-		super.setRotation(this.rotationTarget, pitch);
-	}
-	
-	@Override
-	public void setPositionAndRotation(double x, double y, double z, float yaw, float pitch) {
-		super.setPositionAndRotation(x, y, z, this.rotationTarget, pitch);
-	}
-
-	@Override
-	public void setPositionAndRotationDirect(double x, double y, double z, float yaw, float pitch, int posRotationIncrements, boolean teleport) {
-		super.setPositionAndRotationDirect(x, y, z, this.rotationTarget, pitch, posRotationIncrements, teleport);
-	}
+//	@Override
+//	protected void setRotation(float yaw, float pitch) {
+//		super.setRotation(this.rotationTarget, pitch);
+//	}
+//	
+//	@Override
+//	public void setPositionAndRotation(double x, double y, double z, float yaw, float pitch) {
+//		super.setPositionAndRotation(x, y, z, this.rotationTarget, pitch);
+//	}
+//
+//	@Override
+//	public void setPositionAndRotationDirect(double x, double y, double z, float yaw, float pitch, int posRotationIncrements, boolean teleport) {
+//		super.setPositionAndRotationDirect(x, y, z, this.rotationTarget, pitch, posRotationIncrements, teleport);
+//	}
 	
 	@Override
 	protected float updateDistance(float p_110146_1_, float p_110146_2_) {
@@ -294,6 +303,7 @@ public final class EntityStoicDummy extends EntityLivingBase implements IEntityA
 		super.writeEntityToNBT(compound);
 		compound.setBoolean(DummyNBT.HAND, this.hand == EnumHandSide.RIGHT);
 		compound.setInteger(DummyNBT.ROTATION, this.rotationTarget);
+		compound.setByte(DummyNBT.CREATURE_ATTRIBUTE, (byte) this.currentCreatureAttribute.ordinal());
 		if(!this.hasEmptyInventory()) {
 			compound.setTag(DummyNBT.INVENTORY, this.inventory.writeToNBT());
 		}
@@ -312,6 +322,7 @@ public final class EntityStoicDummy extends EntityLivingBase implements IEntityA
 		super.readEntityFromNBT(compound);
 		this.hand = compound.getBoolean(DummyNBT.HAND) ? EnumHandSide.RIGHT : EnumHandSide.LEFT;
 		this.setRotation(compound.getInteger(DummyNBT.ROTATION));
+		this.setEnumCreatureAttribute(EnumCreatureAttribute.values()[compound.getByte(DummyNBT.CREATURE_ATTRIBUTE)]);
 		if(compound.hasKey(DummyNBT.INVENTORY)) {
 			this.inventory.readFromNBT(compound.getTagList(DummyNBT.INVENTORY, DummyNBT.TAG_COMPOUND_ID));
 		}

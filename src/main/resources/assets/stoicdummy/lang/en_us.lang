@@ -5,8 +5,12 @@ item.stoicdummy.stoicdummyitem.name=Stoic Dummy
 
 tooltips.stoicdummy.info=Interact while Sneaking with empty hand to pick up!
 
-history.stoicdummy.attacker=Attacker:
-history.stoicdummy.trueAttacker=True Attacker:
-history.stoicdummy.source=Source:
-history.stoicdummy.damageDealt=Initial Damage Dealt:
-history.stoicdummy.damageTaken=Final Damage Taken:
+history.stoicdummy.attacker=Attacker
+history.stoicdummy.trueAttacker=True Attacker
+history.stoicdummy.source=Source
+history.stoicdummy.damageDealt=Initial Damage Dealt
+history.stoicdummy.damageTaken=Final Damage Taken
+
+ui.stoicdummy.clearHistory=Clear History
+ui.stoicdummy.helpTooltip=Hold <SHIFT> to see help.
+ui.stoicdummy.potionHelp=Add Potion Effects to the Dummy here. You can <TAB> between the potion and amplifier input fields. Pressing <ENTER> in either of the fields will add the potion if it's a valid potion.

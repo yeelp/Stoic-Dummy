@@ -6,6 +6,7 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.client.FMLClientHandler;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
@@ -45,10 +46,11 @@ public class StoicDummyStatusResponse implements IMessage {
 	}
 	
 	public static final class StoicDummyStatusResponseReceiver implements IMessageHandler<StoicDummyStatusResponse, IMessage> {
-		
 		@Override
 		public IMessage onMessage(StoicDummyStatusResponse message, MessageContext ctx) {
-			((EntityStoicDummy) FMLClientHandler.instance().getWorldClient().getEntityByID(message.id)).readEntityFromNBT(message.tag);
+			FMLCommonHandler.instance().getWorldThread(ctx.netHandler).addScheduledTask(() -> {
+				((EntityStoicDummy) FMLClientHandler.instance().getWorldClient().getEntityByID(message.id)).readEntityFromNBT(message.tag);
+			});
 			return null;
 		}
 	}

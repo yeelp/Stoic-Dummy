@@ -18,7 +18,6 @@ import yeelp.stoicdummy.handler.NetworkHandler;
 import yeelp.stoicdummy.inventory.ContainerStoicDummy;
 import yeelp.stoicdummy.inventory.StoicDummyInventory;
 import yeelp.stoicdummy.network.MessageType;
-import yeelp.stoicdummy.network.StoicDummyEmptyMessage;
 import yeelp.stoicdummy.proxy.Proxy;
 
 @Mod(modid = ModConsts.MODID, name = ModConsts.NAME, version = ModConsts.VERSION)
@@ -41,8 +40,8 @@ public final class StoicDummy {
 			@Override
 			public Object getClientGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z) {
 				EntityStoicDummy dummy = this.getStoicDummy(ID, world);
-				MessageType.STATUS_REQUEST.sendMessage(dummy, new StoicDummyEmptyMessage());
-				return new GuiScreenStoicDummy(new ContainerStoicDummy(player.inventory, new StoicDummyInventory(dummy)));
+				MessageType.STATUS_REQUEST.sendMessage(dummy);
+				return new GuiScreenStoicDummy(new ContainerStoicDummy(player.inventory, new StoicDummyInventory(dummy)), dummy);
 			}
 
 			@Override
