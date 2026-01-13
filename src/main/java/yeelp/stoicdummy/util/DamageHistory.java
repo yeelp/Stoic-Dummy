@@ -1,21 +1,25 @@
 package yeelp.stoicdummy.util;
 
-import java.util.Collections;
 import java.util.Deque;
 import java.util.Iterator;
 import java.util.Optional;
 
+import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import yeelp.stoicdummy.ModConsts.DummyNBT;
+import yeelp.stoicdummy.ModConsts.TranslationKeys;
 import yeelp.stoicdummy.SDLogger;
 import yeelp.stoicdummy.config.ModConfig;
+import yeelp.stoicdummy.util.Translations.Translator;
 
 public final class DamageHistory implements Iterable<AbstractDamageInstance> {
+	
+	protected static final Translator TRANSLATOR = Translations.INSTANCE.getTranslator(TranslationKeys.HISTORY_ROOT);
 
-	private final Deque<AbstractDamageInstance> delegate;
+	protected final Deque<AbstractDamageInstance> delegate;
 	
 	public DamageHistory() {
 		this.delegate = Lists.newLinkedList();
@@ -68,6 +72,63 @@ public final class DamageHistory implements Iterable<AbstractDamageInstance> {
 				SDLogger.err("Invalid damage instance ID! {}", type);				
 			}
 		});
+	}
+	
+	public Iterable<String> getNumberedHistory() {
+		return new Iterable<String>() {
+			@Override
+			public Iterator<String> iterator() {
+				return DamageHistory.this.new NumberedDamageHistoryIterator();
+			}
+		};
+	}
+	
+	private final class NumberedDamageHistoryIterator implements Iterator<String> {
+		
+		private final Iterator<AbstractDamageInstance> normalIt;
+		private Iterator<String> damageInstanceIterator = null;
+		boolean isNumbering = true;
+		int total; 
+		private final int historySize;
+		
+		NumberedDamageHistoryIterator() {
+			this.normalIt = DamageHistory.this.iterator();
+			this.total = DamageHistory.this.delegate.size();
+			this.historySize = this.total;
+		}
+		
+		@Override
+		public boolean hasNext() {
+			return this.normalIt.hasNext() || (this.damageInstanceIterator != null && this.damageInstanceIterator.hasNext());
+		}
+		
+		@Override
+		public String next() {
+			if(this.isNumbering) {
+				String s;
+				if(this.total == this.historySize) {
+					s = TRANSLATOR.getComponent(TranslationKeys.LEAST_RECENT).getUnformattedText();
+				}
+				else if (this.total == 1) {
+					s = TRANSLATOR.getComponent(TranslationKeys.MOST_RECENT).getUnformattedText();
+				}
+				else {
+					s = TRANSLATOR.getComponent(TranslationKeys.NTH_RECENT, StringUtils.number(this.total)).getUnformattedText();
+				}
+				this.isNumbering = !this.isNumbering;
+				this.total--;
+				return StringUtils.pad(s, '-', 21);
+			}
+			if(this.damageInstanceIterator == null) {
+				this.damageInstanceIterator = Iterators.forArray(this.normalIt.next().toString().split(System.lineSeparator()));
+			}
+			String s = this.damageInstanceIterator.next();
+			if(!this.damageInstanceIterator.hasNext()) {
+				this.damageInstanceIterator = null;
+				this.isNumbering = !this.isNumbering;
+			}
+			return s;
+		}
 	}
 
 }

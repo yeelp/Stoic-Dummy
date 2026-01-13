@@ -3,23 +3,19 @@ package yeelp.stoicdummy.client.screen;
 import java.util.List;
 
 import org.lwjgl.input.Mouse;
-import org.lwjgl.opengl.GL11;
 
 import com.google.common.collect.Lists;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.math.MathHelper;
 import yeelp.stoicdummy.SDLogger;
 
 public final class ContentPane<T> {
 
 	private final List<T> contents;
-	private final int x, y, width, height, individualContentHeight;
+	private final int x, y, width, height, individualContentHeight, itemsInView;
 	private int scrollY = 0; 
 	private boolean scrollBarClicked = false, dragging = false;
 	private static final int SCROLLBAR_WIDTH = 10;
@@ -30,6 +26,7 @@ public final class ContentPane<T> {
 		this.width = width;
 		this.height = height;
 		this.individualContentHeight = contentHeight;
+		this.itemsInView = this.height/this.individualContentHeight;
 		this.contents = Lists.newArrayList();
 	}
 	
@@ -86,13 +83,21 @@ public final class ContentPane<T> {
 	}
 	
 	public Iterable<T> getViewableContents() {
+		//TODO edge case to guarantee if at the bottom, the content pane shows the bottom items
 		this.updateScrollBounds();
 		if(!this.scrollable()) {
 			return this.contents;
 		}
-		int start = this.scrollY/this.individualContentHeight;
-		int end = start + (this.height/this.individualContentHeight);
-		return this.contents.subList(start, Math.min(this.contents.size() - 1, end));
+		int start, end;
+		if(this.scrollY == this.getContentsHeight() - this.height) {
+			end = this.contents.size();
+			start = end - this.itemsInView;
+		}
+		else {
+			start = this.scrollY/this.individualContentHeight;
+			end = Math.min(this.contents.size(), start + this.itemsInView);			
+		}
+		return this.contents.subList(start, end);
 	}
 	
 	private int getScrollbarHeight() {
@@ -150,10 +155,6 @@ public final class ContentPane<T> {
 	
 	private int getScrollBarXMin() {
 		return this.x + this.width - SCROLLBAR_WIDTH;
-	}
-	
-	private int getScrollBarXMax() {
-		return this.x + this.width;
 	}
 	
 	void draw() {

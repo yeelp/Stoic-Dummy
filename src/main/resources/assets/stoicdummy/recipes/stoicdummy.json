@@ -1,0 +1,41 @@
+{
+    "type": "forge:ore_shaped",
+    "mirrored": true,
+    "pattern": [
+        "OGO",
+        "SRE",
+        "CKC"
+    ],
+    "key": {
+        "O": {
+            "type": "forge:ore_dict",
+            "ore": "obsidian"
+        },
+        "G": {
+            "type": "forge:ore_dict",
+            "ore": "blockGlass"
+        
+        },
+        "S": {
+            "item": "minecraft:soul_sand"
+        },
+        "R": {
+            "type": "forge:ore_dict",
+            "ore": "dustRedstone"
+        },
+        "E": {
+            "type": "forge:ore_dict",
+            "ore": "egg"
+        },
+        "C": {
+            "item": "minecraft:comparator"
+        },
+        "K": {
+            "item": "minecraft:skull",
+            "data": 32767
+        }
+    },
+    "result": {
+        "item": "stoicdummy:stoicdummyitem"
+    }
+}

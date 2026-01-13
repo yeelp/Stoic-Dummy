@@ -47,6 +47,10 @@ public interface ModConsts {
 		String DAMAGE_DEALT = "damageDealt";
 		String DAMAGE_TAKEN = "damageTaken";
 		
+		String MOST_RECENT = "mostRecent";
+		String LEAST_RECENT = "leastRecent";
+		String NTH_RECENT = "nthRecent";
+		
 		String UI_ROOT = "ui";
 		String CLEAR_HISTORY = "clearHistory";
 		String HELP_TOOLTIP = "helpTooltip";

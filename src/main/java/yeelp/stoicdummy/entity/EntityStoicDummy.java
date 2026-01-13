@@ -193,6 +193,10 @@ public final class EntityStoicDummy extends EntityLivingBase implements IEntityA
 		return this.history;
 	}
 	
+	public Iterable<String> getDamageHistoryNumbered() {
+		return this.history.getNumberedHistory();
+	}
+	
 	public void clearDamageHistory() {
 		this.history.clear();
 	}
@@ -232,23 +236,6 @@ public final class EntityStoicDummy extends EntityLivingBase implements IEntityA
 	public void setLocationAndAngles(double x, double y, double z, float yaw, float pitch) {
 		super.setLocationAndAngles(x, y, z, this.rotationTarget, pitch);
 	}
-	
-	
-	//TODO is this rotation overriding needed? We have updateDistance which seems to work
-//	@Override
-//	protected void setRotation(float yaw, float pitch) {
-//		super.setRotation(this.rotationTarget, pitch);
-//	}
-//	
-//	@Override
-//	public void setPositionAndRotation(double x, double y, double z, float yaw, float pitch) {
-//		super.setPositionAndRotation(x, y, z, this.rotationTarget, pitch);
-//	}
-//
-//	@Override
-//	public void setPositionAndRotationDirect(double x, double y, double z, float yaw, float pitch, int posRotationIncrements, boolean teleport) {
-//		super.setPositionAndRotationDirect(x, y, z, this.rotationTarget, pitch, posRotationIncrements, teleport);
-//	}
 	
 	@Override
 	protected float updateDistance(float p_110146_1_, float p_110146_2_) {

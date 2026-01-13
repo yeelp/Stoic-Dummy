@@ -25,8 +25,6 @@ import yeelp.stoicdummy.SDLogger;
 import yeelp.stoicdummy.network.MessageType;
 import yeelp.stoicdummy.network.StoicDummyCreatureAttributeMessage;
 import yeelp.stoicdummy.network.StoicDummyPotionMessage;
-import yeelp.stoicdummy.util.AbstractDamageInstance;
-import yeelp.stoicdummy.util.DamageHistory;
 
 public class ContainerStoicDummy extends Container {
 	
@@ -116,8 +114,8 @@ public class ContainerStoicDummy extends Container {
 		MessageType.CLEAR_HISTORY.sendMessage(this.inventory.dummyOwner);
 	}
 	
-	public Iterable<AbstractDamageInstance> getDamageHistory() {
-		return this.inventory.dummyOwner.getDamageHistory();
+	public Iterable<String> getDamageHistoryText() {
+		return this.inventory.dummyOwner.getDamageHistoryNumbered();
 	}
 	
 	public Iterable<PotionEffect> getPotionEffects() {

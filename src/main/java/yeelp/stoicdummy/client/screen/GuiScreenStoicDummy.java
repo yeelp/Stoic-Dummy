@@ -28,7 +28,6 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import yeelp.stoicdummy.ModConsts.TranslationKeys;
 import yeelp.stoicdummy.entity.EntityStoicDummy;
 import yeelp.stoicdummy.inventory.ContainerStoicDummy;
-import yeelp.stoicdummy.util.AbstractDamageInstance;
 import yeelp.stoicdummy.util.StringUtils;
 import yeelp.stoicdummy.util.Translations;
 
@@ -81,7 +80,7 @@ public final class GuiScreenStoicDummy extends GuiContainer {
 		this.addButton(this.ampUp);
 		this.addButton(this.ampDown);
 		
-		this.potionPane = new ContentPane<GuiRemovePotionButton>(this.inputPotion.x + 3, this.inputPotion.y + this.inputPotion.height + 15, 100, GuiRemovePotionButton.BUTTON_WIDTH * 4 + 5, GuiRemovePotionButton.BUTTON_WIDTH);
+		this.potionPane = new ContentPane<GuiRemovePotionButton>(this.inputPotion.x + 3, this.inputPotion.y + this.inputPotion.height + 15, 120, GuiRemovePotionButton.BUTTON_WIDTH * 5, GuiRemovePotionButton.BUTTON_WIDTH);
 		
 		int attributeX = x + 10, attributeY = y + 105;
 		for(GuiRadioButton.CreatureAttributeDisplay display : GuiRadioButton.CreatureAttributeDisplay.values()) {
@@ -93,10 +92,10 @@ public final class GuiScreenStoicDummy extends GuiContainer {
 			attributeY += GuiRadioButton.BUTTON_WIDTH;
 		}
 		this.creatureAttributeButtons.forEach(this::addButton);
-		this.clearHistory = new GuiButton(buttonId++, this.addPotion.x + this.addPotion.width + 50, this.addPotion.y, 80, 20, Translations.INSTANCE.translate(TranslationKeys.UI_ROOT, TranslationKeys.CLEAR_HISTORY));
+		this.clearHistory = new GuiButton(buttonId++, this.addPotion.x + this.addPotion.width + 60, this.addPotion.y, 80, 20, Translations.INSTANCE.translate(TranslationKeys.UI_ROOT, TranslationKeys.CLEAR_HISTORY));
 		this.addButton(this.clearHistory);
 		
-		this.historyPane = new ContentPane<String>(this.clearHistory.x - 10, this.clearHistory.y + this.clearHistory.height + 5, 100, HISTORY_LINE_HEIGHT * 7 + 4, HISTORY_LINE_HEIGHT);
+		this.historyPane = new ContentPane<String>(this.clearHistory.x + this.clearHistory.width/2 - 75, this.clearHistory.y + this.clearHistory.height + 5, 150, HISTORY_LINE_HEIGHT * 15, HISTORY_LINE_HEIGHT);
 		
 		this.helpTooltips.add(new HelpTooltip(TranslationKeys.POTION_HELP, this.inputPotion.x + this.inputPotion.width, this.inputPotion.y + HelpTooltip.HELP_TOOLTIP_Y_OFFSET));
 		this.helpTooltips.add(new HelpTooltip(TranslationKeys.POTION_INPUT_HELP, this.addPotion.x + this.addPotion.width, this.addPotion.y + HelpTooltip.HELP_TOOLTIP_Y_OFFSET));
@@ -256,18 +255,7 @@ public final class GuiScreenStoicDummy extends GuiContainer {
 		}
 		this.potionPane.getViewableContents().forEach(this::addButton);
 		this.historyPane.clear();
-		boolean first = true;
-		for(AbstractDamageInstance instance : this.dummy.getDamageHistory()) {
-			if(!first) {
-				this.historyPane.add("-----------------");
-			}
-			else {
-				first = false;
-			}
-			for(String s : instance.toString().split(System.lineSeparator())) {
-				this.historyPane.add(s);
-			}			
-		}
+		this.dummy.getDamageHistoryText().forEach(this.historyPane::add);
 	}
 	
 	private void updateAmplifier(int amp) {

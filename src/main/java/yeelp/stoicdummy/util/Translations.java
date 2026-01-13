@@ -24,8 +24,16 @@ public enum Translations {
 			return new TextComponentTranslation(this.getKey(key));
 		}
 		
+		public ITextComponent getComponent(String key, Object...args) {
+			return new TextComponentTranslation(this.getKey(key), args);
+		}
+		
 		public String translate(String key) {
 			return this.getComponent(key).getFormattedText();
+		}
+		
+		public String translate(String key, Object...args) {
+			return this.getComponent(key, args).getFormattedText();
 		}
 		
 		protected String getKey(String key) {

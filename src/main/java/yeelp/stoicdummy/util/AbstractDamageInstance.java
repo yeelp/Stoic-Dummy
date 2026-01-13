@@ -16,7 +16,6 @@ import yeelp.stoicdummy.ModConsts.TranslationKeys;
 import yeelp.stoicdummy.util.Translations.Translator;
 
 public abstract class AbstractDamageInstance {
-	
 	protected static final Translator TRANSLATOR = Translations.INSTANCE.getTranslator(TranslationKeys.HISTORY_ROOT);
 	protected static final ITextComponent ATTACKER = TRANSLATOR.getComponent(TranslationKeys.ATTACKER);
 	protected static final ITextComponent TRUE_ATTACKER = TRANSLATOR.getComponent(TranslationKeys.TRUE_ATTACKER);
@@ -24,7 +23,9 @@ public abstract class AbstractDamageInstance {
 
 	private final String attacker, trueAttacker, source;
 	private final float amountBefore, amountAfter;
-	private static final DecimalFormat FORMAT = new DecimalFormat("##.##");
+	
+	private static final DecimalFormat FORMAT_TWO_DECIMALS = new DecimalFormat("##.##");
+	private static final DecimalFormat SCI_NOTATE = new DecimalFormat("##.#E0");
 	
 	protected AbstractDamageInstance(DamageSource src, float amountBefore, float amountAfter) {
 		this.attacker = mapIfNonNullElseGetDefault(src.getImmediateSource(), Entity::getName, "null");
@@ -63,7 +64,7 @@ public abstract class AbstractDamageInstance {
 	}
 	
 	protected static String formatDamage(float f) {
-		return FORMAT.format(f);
+		return (f >= 1000 ? SCI_NOTATE : FORMAT_TWO_DECIMALS).format(f);
 	}
 	
 	protected static final <T, U> U mapIfNonNullElseGetDefault(T t, Function<T, U> function, U backup) {

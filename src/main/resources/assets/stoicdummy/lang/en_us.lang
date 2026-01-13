@@ -10,6 +10,9 @@ history.stoicdummy.trueAttacker=True Attacker
 history.stoicdummy.source=Source
 history.stoicdummy.damageDealt=Initial Damage Dealt
 history.stoicdummy.damageTaken=Final Damage Taken
+history.stoicdummy.nthRecent=<%s Most Recent>
+history.stoicdummy.mostRecent=<Most Recent>
+history.stoicdummy.leastRecent=<Least Recent>
 
 ui.stoicdummy.clearHistory=Clear History
 ui.stoicdummy.helpTooltip=Hold <SHIFT> to see help.

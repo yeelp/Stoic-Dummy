@@ -1,5 +1,7 @@
 package yeelp.stoicdummy.util;
 
+import java.util.Arrays;
+
 public final class StringUtils {
 
 	private StringUtils() {
@@ -40,5 +42,35 @@ public final class StringUtils {
 		}
 		for(; rem > 0; sb.append("I"), rem--);
 		return sb.toString();
+	}
+	
+	public static String pad(String toPad, char pad, int totalLength) {
+		if(toPad.length() >= totalLength - 1) {
+			return toPad;
+		}
+		int space = totalLength - toPad.length();
+		int frontPad = space/2;
+		int backPad = space - frontPad;
+		char[] front = new char[frontPad];
+		char[] back = new char[backPad];
+		Arrays.fill(front, pad);
+		Arrays.fill(back, pad);
+		return String.valueOf(front) + toPad + String.valueOf(back);
+	}
+	
+	public static String number(int n) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(n);
+		char lastDigit = sb.charAt(sb.length() - 1);
+		switch(lastDigit) {
+			case '1':
+				return sb.append("st").toString();
+			case '2':
+				return sb.append("nd").toString();
+			case '3':
+				return sb.append("rd").toString();
+			default:
+				return sb.append("th").toString();
+		}
 	}
 }
