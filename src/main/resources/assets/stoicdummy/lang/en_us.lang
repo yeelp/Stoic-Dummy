@@ -17,3 +17,12 @@ history.stoicdummy.leastRecent=<Least Recent>
 ui.stoicdummy.clearHistory=Clear History
 ui.stoicdummy.helpTooltip=Hold <SHIFT> to see help.
 ui.stoicdummy.potionHelp=Add Potion Effects to the Dummy here. You can <TAB> between the potion and amplifier input fields. Pressing <ENTER> in either of the fields will add the potion if it's a valid potion.
+ui.stoicdummy.potionInputHelp=Click the + button to add the potion effect to the dummy. The button is only enabled if the potion exists and the amplifier is within [0,127].
+ui.stoicdummy.potionEffectsHelp=A list of all the permanent potion effects added to the dummy via the input above. Click the X next to a potion effect to remove it.
+ui.stoicdummy.attributeHelp=You can change the creature attribute of the dummy here. This would allow the dummy to take extra damage from Smite for example if set to UNDEAD.
+ui.stoicdummy.clearHelp=You can clear the damage history of the dummy here.
+ui.stoicdummy.historyHelp=This shows the damage history of the dummy since the last time this GUI was opened. It won't update as the dummy takes damage to make navigation easier (but closing and reopening the GUI will show the new history).
+ui.stoicdummy.inventoryHelp=You can equip items to the dummy here.
+
+history.ddd.stoicdummy.initialDist=Initial Damage Breakdown
+history.ddd.stoicdummy.finalDist=Final Damage Breakdown

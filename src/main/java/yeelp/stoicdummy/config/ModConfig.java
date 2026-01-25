@@ -19,7 +19,8 @@ public final class ModConfig {
 	@Name("Dummy Settings")
 	@Comment("Configure settings for the Stoic Dummy.")
 	public static DummyCategory dummy = new DummyCategory();
-	
+
+	@SuppressWarnings("unused")
 	@EventBusSubscriber(modid = ModConsts.MODID)
 	private static class EventHandler {
 		@SubscribeEvent

@@ -1,19 +1,7 @@
 package yeelp.stoicdummy.client.screen;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
-
-import org.lwjgl.input.Keyboard;
-import org.lwjgl.input.Mouse;
-
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.gui.ScaledResolution;
@@ -22,24 +10,38 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.EnumCreatureAttribute;
 import net.minecraft.inventory.Container;
 import net.minecraft.potion.PotionEffect;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import org.lwjgl.input.Keyboard;
+import org.lwjgl.input.Mouse;
+import yeelp.stoicdummy.ModConsts;
 import yeelp.stoicdummy.ModConsts.TranslationKeys;
 import yeelp.stoicdummy.entity.EntityStoicDummy;
 import yeelp.stoicdummy.inventory.ContainerStoicDummy;
 import yeelp.stoicdummy.util.StringUtils;
 import yeelp.stoicdummy.util.Translations;
 
+import java.io.IOException;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+
+@SuppressWarnings("Convert2Diamond")
 @SideOnly(Side.CLIENT)
 public final class GuiScreenStoicDummy extends GuiContainer {
-	
+
+    static final ResourceLocation TEXTURE = new ResourceLocation(ModConsts.MODID, "textures/gui/stoicdummyui.png");
 	private GuiTextField inputPotion, inputAmp;
 	private GuiButton ampUp, ampDown, addPotion, clearHistory;
 	private ContentPane<GuiRemovePotionButton> potionPane;
 	private ContentPane<String> historyPane;
-	private List<GuiRadioButton> creatureAttributeButtons;
-	private Set<HelpTooltip> helpTooltips;
+	private final List<GuiRadioButton> creatureAttributeButtons;
+	private final Set<HelpTooltip> helpTooltips;
 	private final ContainerStoicDummy dummy;
 	private final EnumCreatureAttribute startingCreatureAttribute;
 	private final Supplier<String> nameFetcher;
@@ -61,10 +63,11 @@ public final class GuiScreenStoicDummy extends GuiContainer {
 	public void initGui() {
 		super.initGui();
 		trailingLength = trailingLength < 0 ? this.fontRenderer.getStringWidth("...") : trailingLength;
-		int x = (this.width - this.xSize) / 2;
-		int y = (this.height - this.ySize) / 2;
+		int x = (this.width - this.xSize) / 2 - 80;
+		int y = (this.height - this.ySize) / 2 - 15;
 		int inputPotionY = y - 10; 
 		this.inputPotion = new GuiTextField(0, this.fontRenderer, x + 48, inputPotionY, 52, 12);
+		this.inputPotion.setMaxStringLength(100);
 		this.inputAmp = new GuiTextField(1, this.fontRenderer, this.inputPotion.x + this.inputPotion.width + 6, inputPotionY, 28, 12);
 		this.inputAmp.setValidator((s) -> s.chars().allMatch((c) -> Character.isDigit((char) c)));
 		this.inputAmp.setMaxStringLength(3);
@@ -72,15 +75,15 @@ public final class GuiScreenStoicDummy extends GuiContainer {
 		int buttonId = 0;
 		int ampY = (this.inputAmp.height + 2)/2;
 		int ampX = this.inputAmp.x + this.inputAmp.width + 1;
-		this.ampUp = new GuiButton(buttonId++, ampX, inputPotionY - 1, 10, ampY, "^");
-		this.ampDown = new GuiButton(buttonId++, ampX, inputPotionY + ampY - 1, 10, ampY, "V");
-		this.addPotion = new GuiButton(buttonId++, ampX + this.ampUp.width, inputPotionY - 1, ampY * 2, ampY * 2, "+");
+		this.ampUp = new BasicButton(buttonId++, ampX, inputPotionY - 1, 10, ampY, 0, 30);
+		this.ampDown = new BasicButton(buttonId++, ampX, inputPotionY + ampY - 1, 10, ampY, 10, 30);
+		this.addPotion = new BasicButton(buttonId++, ampX + this.ampUp.width, inputPotionY - 1, ampY * 2, ampY * 2, 20, 30);
 		this.addPotion.enabled = false;
 		this.addButton(this.addPotion);
 		this.addButton(this.ampUp);
 		this.addButton(this.ampDown);
 		
-		this.potionPane = new ContentPane<GuiRemovePotionButton>(this.inputPotion.x + 3, this.inputPotion.y + this.inputPotion.height + 15, 120, GuiRemovePotionButton.BUTTON_WIDTH * 5, GuiRemovePotionButton.BUTTON_WIDTH);
+		this.potionPane = new ContentPane<GuiRemovePotionButton>(this.inputPotion.x + 3, this.inputPotion.y + this.inputPotion.height + 15, 120, GuiRemovePotionButton.BUTTON_SIZE * 5, GuiRemovePotionButton.BUTTON_SIZE);
 		
 		int attributeX = x + 10, attributeY = y + 105;
 		for(GuiRadioButton.CreatureAttributeDisplay display : GuiRadioButton.CreatureAttributeDisplay.values()) {
@@ -89,19 +92,21 @@ public final class GuiScreenStoicDummy extends GuiContainer {
 				button.set();
 			}
 			this.creatureAttributeButtons.add(button);
-			attributeY += GuiRadioButton.BUTTON_WIDTH;
+			attributeY += GuiRadioButton.BUTTON_SIZE;
 		}
 		this.creatureAttributeButtons.forEach(this::addButton);
-		this.clearHistory = new GuiButton(buttonId++, this.addPotion.x + this.addPotion.width + 60, this.addPotion.y, 80, 20, Translations.INSTANCE.translate(TranslationKeys.UI_ROOT, TranslationKeys.CLEAR_HISTORY));
+		this.clearHistory = new GuiButton(buttonId, this.addPotion.x + this.addPotion.width + 60, this.addPotion.y, 80, 20, Translations.INSTANCE.translate(TranslationKeys.UI_ROOT, TranslationKeys.CLEAR_HISTORY));
 		this.addButton(this.clearHistory);
 		
 		this.historyPane = new ContentPane<String>(this.clearHistory.x + this.clearHistory.width/2 - 75, this.clearHistory.y + this.clearHistory.height + 5, 150, HISTORY_LINE_HEIGHT * 15, HISTORY_LINE_HEIGHT);
 		
 		this.helpTooltips.add(new HelpTooltip(TranslationKeys.POTION_HELP, this.inputPotion.x + this.inputPotion.width, this.inputPotion.y + HelpTooltip.HELP_TOOLTIP_Y_OFFSET));
 		this.helpTooltips.add(new HelpTooltip(TranslationKeys.POTION_INPUT_HELP, this.addPotion.x + this.addPotion.width, this.addPotion.y + HelpTooltip.HELP_TOOLTIP_Y_OFFSET));
-		this.helpTooltips.add(new HelpTooltip(TranslationKeys.POTION_EFFECTS_HELP, this.inputPotion.x, this.inputPotion.y + 18));
+		this.helpTooltips.add(new HelpTooltip(TranslationKeys.POTION_EFFECTS_HELP, this.inputPotion.x, this.inputPotion.y + 16));
 		this.helpTooltips.add(new HelpTooltip(TranslationKeys.CLEAR_HISTORY_HELP, this.clearHistory.x + this.clearHistory.width, this.clearHistory.y + HelpTooltip.HELP_TOOLTIP_Y_OFFSET));
-		this.helpTooltips.add(new HelpTooltip(TranslationKeys.ATTRIBUTE_HELP, attributeX, attributeY - 4 * GuiRadioButton.BUTTON_WIDTH + HelpTooltip.HELP_TOOLTIP_Y_OFFSET));
+		this.helpTooltips.add(new HelpTooltip(TranslationKeys.ATTRIBUTE_HELP, attributeX, attributeY - 4 * GuiRadioButton.BUTTON_SIZE + HelpTooltip.HELP_TOOLTIP_Y_OFFSET));
+		this.helpTooltips.add(new HelpTooltip(TranslationKeys.HISTORY_HELP, this.historyPane.getX(), this.historyPane.getY() + HelpTooltip.HELP_TOOLTIP_Y_OFFSET));
+		this.helpTooltips.add(new HelpTooltip(TranslationKeys.INVENTORY_HELP, attributeX, this.inputPotion.y + 15));
 		this.updateGUI();
 		this.historyPane.scrollBot();
 	}
@@ -163,7 +168,7 @@ public final class GuiScreenStoicDummy extends GuiContainer {
 	}
 	
 	@Override
-	protected void actionPerformed(GuiButton button) throws IOException {
+	protected void actionPerformed(GuiButton button) {
 		int buttonClicked = button.id;
 		if(buttonClicked == this.ampUp.id) {
 			this.updateAmplifier(this.dummy.getAmplifier() + 1);
@@ -193,24 +198,23 @@ public final class GuiScreenStoicDummy extends GuiContainer {
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		this.updateGUI();
 		this.drawDefaultBackground();
-		this.potionPane.draw();
 		super.drawScreen(mouseX, mouseY, partialTicks);
 		GlStateManager.disableLighting();
 		GlStateManager.disableBlend();
+		this.potionPane.draw();
 		this.inputPotion.drawTextBox();
 		this.inputAmp.drawTextBox();
-		int y = this.potionPane.getY();
 		this.potionPane.getViewableContents().forEach((button) -> {
 			PotionEffect effect = button.getPotionEffect();
-			this.drawString(this.fontRenderer, this.trimPotionToLength(new TextComponentTranslation(effect.getPotion().getName()).getFormattedText(), StringUtils.convertToRomanNumerals(effect.getAmplifier() + 1)), this.inputPotion.x + GuiRemovePotionButton.BUTTON_WIDTH + 5, button.y + button.height/3, TEXT_COLOUR);
+			this.drawString(this.fontRenderer, this.trimPotionToLength(new TextComponentTranslation(effect.getPotion().getName()).getFormattedText(), StringUtils.convertToRomanNumerals(effect.getAmplifier() + 1)), this.inputPotion.x + GuiRemovePotionButton.BUTTON_SIZE + 5, button.y + button.height/3, TEXT_COLOUR);
 		});
 		this.historyPane.draw();
-		y = this.historyPane.getY();
+		int y = this.historyPane.getY();
 		for(String s : this.historyPane.getViewableContents()) {
 			this.fontRenderer.drawString(s, this.historyPane.getX(), y, TEXT_COLOUR);
 			y += this.historyPane.getOffsetY();
 		}
-		this.helpTooltips.forEach((tooltip) -> this.drawString(this.fontRenderer, "?", tooltip.getX(), tooltip.getY(), TEXT_COLOUR));
+		this.helpTooltips.forEach((tooltip) -> this.fontRenderer.drawString("?", tooltip.getX(), tooltip.getY(), 0x404040));
 		GlStateManager.enableBlend();
 		GlStateManager.enableLighting();
 		Optional<HelpTooltip> helpTooltip = this.helpTooltips.stream().filter((tooltip) -> tooltip.isHovering(mouseX, mouseY)).findFirst();
@@ -227,12 +231,13 @@ public final class GuiScreenStoicDummy extends GuiContainer {
 	
 	@Override
 	protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
-		return;
+		this.mc.getTextureManager().bindTexture(TEXTURE);
+		drawModalRectWithCustomSizedTexture((this.width - this.xSize) / 2 - 81,(this.height - this.ySize) / 2 - 61, 0, 0, 344, 283, 512, 512);
 	}
 	
 	@Override
 	protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
-		this.fontRenderer.drawString(this.nameFetcher.get(), 80, -40, TEXT_COLOUR);
+		this.fontRenderer.drawString(this.nameFetcher.get(), 80, this.inputPotion.y - 110, 0x404040);
 	}
 	
 	private void updateGUI() {
@@ -259,7 +264,7 @@ public final class GuiScreenStoicDummy extends GuiContainer {
 	}
 	
 	private void updateAmplifier(int amp) {
-		int cappedAmp = amp > 127 ? 127 : (amp < 0 ? 0 : amp);
+		int cappedAmp = amp > 127 ? 127 : (Math.max(amp, 0));
 		this.inputAmp.setText(String.valueOf(cappedAmp));
 		this.dummy.updateAmplifierSelected(cappedAmp);
 	}

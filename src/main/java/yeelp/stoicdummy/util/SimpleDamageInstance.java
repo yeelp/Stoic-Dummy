@@ -1,5 +1,6 @@
 package yeelp.stoicdummy.util;
 
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -15,7 +16,6 @@ public final class SimpleDamageInstance extends AbstractDamageInstance {
 
 	public static final byte ID = (byte) 1;
 	
-	private static final ITextComponent SOURCE = TRANSLATOR.getComponent(TranslationKeys.SOURCE);
 	private static final ITextComponent DAMAGE_DEALT = TRANSLATOR.getComponent(TranslationKeys.DAMAGE_DEALT);
 	private static final ITextComponent DAMAGE_TAKEN = TRANSLATOR.getComponent(TranslationKeys.DAMAGE_TAKEN);
 	
@@ -28,41 +28,18 @@ public final class SimpleDamageInstance extends AbstractDamageInstance {
 	}
 	
 	@Override
-	protected Iterator<String> linesIterator() {
+	protected Collection<String> getSpecificInfoForIteration() {
 		List<String> lines = Lists.newArrayList();
-		boolean highlight = true;
-		StringBuilder sb = new StringBuilder();
-		for(String s : this.getAttackerStringComponents()) {
-			if(highlight) {
-				sb = new StringBuilder();
-				sb.append(highlight(s)+SPLIT);
-			}
-			else {
-				sb.append(s);
-				lines.add(sb.toString());
-			}
-			highlight = !highlight;
-		}
-		lines.add(highlight(SOURCE.getFormattedText()) + SPLIT + this.getSource());
 		lines.add(highlight(DAMAGE_DEALT.getFormattedText()) + SPLIT + AbstractDamageInstance.formatDamage(this.getInitialDamage()));
 		lines.add(highlight(DAMAGE_TAKEN.getFormattedText()) + SPLIT + AbstractDamageInstance.formatDamage(this.getFinalDamage()));
-		return lines.iterator();
+		return lines;
 	}
-	
+
 	@Override
-	public NBTTagCompound writeToNBT() {
-		NBTTagCompound compound = new NBTTagCompound();
+	protected void writeSpecificNBT(NBTTagCompound compound) {
 		compound.setByte(DummyNBT.TYPE, ID);
-		compound.setString(DummyNBT.ATTACKER, this.getImmediateAttacker());
-		compound.setString(DummyNBT.TRUE_ATTACKER, this.getTrueAttacker());
-		compound.setString(DummyNBT.SOURCE, this.getSource());
-		compound.setFloat(DummyNBT.INITIAL_AMOUNT, this.getInitialDamage());
-		compound.setFloat(DummyNBT.FINAL_AMOUNT, this.getFinalDamage());
-		return compound;
 	}
-	
-	
-	
+
 	public static final class SimpleDamageInstanceBuilder extends AbstractDamageInstanceBuilder {
 		public SimpleDamageInstanceBuilder(DamageSource src, float initialDamage) {
 			super(src, initialDamage);

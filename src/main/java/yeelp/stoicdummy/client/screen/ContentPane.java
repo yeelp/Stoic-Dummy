@@ -1,23 +1,25 @@
 package yeelp.stoicdummy.client.screen;
 
-import java.util.List;
-
+import com.google.common.collect.Lists;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.util.math.MathHelper;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Mouse;
 
-import com.google.common.collect.Lists;
+import java.util.List;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Gui;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.util.math.MathHelper;
-import yeelp.stoicdummy.SDLogger;
-
+@SideOnly(Side.CLIENT)
 public final class ContentPane<T> {
 
 	private final List<T> contents;
 	private final int x, y, width, height, individualContentHeight, itemsInView;
 	private int scrollY = 0; 
-	private boolean scrollBarClicked = false, dragging = false;
+	private boolean scrollBarClicked = false;
 	private static final int SCROLLBAR_WIDTH = 10;
 	
 	public ContentPane(int x, int y, int width, int height, int contentHeight) {
@@ -83,7 +85,6 @@ public final class ContentPane<T> {
 	}
 	
 	public Iterable<T> getViewableContents() {
-		//TODO edge case to guarantee if at the bottom, the content pane shows the bottom items
 		this.updateScrollBounds();
 		if(!this.scrollable()) {
 			return this.contents;
@@ -110,6 +111,7 @@ public final class ContentPane<T> {
 	
 	void handleMouseInput(int mouseX, int mouseY) {
 		boolean mousePressed = Mouse.isButtonDown(0);
+		boolean dragging;
 		int scrollBarXMin = this.x + this.width - SCROLLBAR_WIDTH;
 		int scrollBarXMax = this.x + this.width;
 		int scrollBarYMin = this.toScreenCoords(this.scrollY);
@@ -117,22 +119,14 @@ public final class ContentPane<T> {
 		boolean withinScrollBar = withinBounds(mouseX, mouseY, scrollBarXMin, scrollBarXMax, scrollBarYMin, scrollBarYMax);
 		boolean withinScrollBarLeniently = withinBounds(mouseX, mouseY, scrollBarXMin - 5, scrollBarXMax + 5, scrollBarYMin - 20, scrollBarYMax + 5);
 		if(mousePressed) {
-			SDLogger.debug("scrollbarHeight: {}, size: {}, x: {}, y: {}, xmin: {}, xmax: {}, ymin: {}, ymax: {}", this.getScrollbarHeight(), this.contents.size(), mouseX, mouseY, scrollBarXMin, scrollBarXMax, scrollBarYMin, scrollBarYMax);
-			if(this.scrollBarClicked && withinScrollBarLeniently) {
-				SDLogger.debug("dragging");
-				this.dragging = true;
-			}
-			else {
-				this.dragging = false;
-			}
+			dragging = this.scrollBarClicked && withinScrollBarLeniently;
 		}
 		else {
-			this.dragging = false;
+			dragging = false;
 		}
-		this.scrollBarClicked = this.dragging || (withinScrollBar && mousePressed);
-		if(this.dragging) {
+		this.scrollBarClicked = dragging || (withinScrollBar && mousePressed);
+		if(dragging) {
 			this.scrollY = this.toScrollCoords(mouseY);
-			SDLogger.debug("{}", this.scrollY);
 			this.updateScrollBounds();
 		}
 	}
@@ -162,23 +156,27 @@ public final class ContentPane<T> {
 			return;
 		}
 		int x1 = this.getScrollBarXMin();
+		int x2 = x1 + SCROLLBAR_WIDTH;
 		int y1 = this.toScreenCoords(this.scrollY);
-		//SDLogger.debug("{}, {}, {}, {}", x1, x2, y1, y2);
+		int y2 = y1 + this.getScrollbarHeight();
+		double u1 = 0, u2 = 10/256.0, v1 = 75/256.0, v2 = 90/256.0;
+		double topV = 74/256.0, botV = 91/256.0;
+
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-		Minecraft.getMinecraft().getTextureManager().bindTexture(Gui.OPTIONS_BACKGROUND);
-		Gui.drawModalRectWithCustomSizedTexture(x1, y1, 0, 0, SCROLLBAR_WIDTH, this.getScrollbarHeight(), 100, 100);
-//		Tessellator tessel = Tessellator.getInstance();
-//		BufferBuilder buffer = tessel.getBuffer();
-//		buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
-//		buffer.color(128, 128, 128, 255);
-//		buffer.pos(x2, y1, 0).tex(5, 0).endVertex();
-//		buffer.pos(x1, y1, 0).tex(0, 0).endVertex();
-//		buffer.pos(x1, y2, 0).tex(0, 5).endVertex();
-//		buffer.pos(x2, y2, 0).tex(5, 5).endVertex();
-//		tessel.draw();
-//		Minecraft.getMinecraft().ingameGUI.drawRect(left, top, right, bottom, color);
-		//y -> scrollY
-		//this.y -> 0
-		//this.y + this.height - this.getScrollBarHeight() -> this.contents.size() * this.individualContentHeight
+		Minecraft.getMinecraft().getTextureManager().bindTexture(StoicGuiButton.TEXTURE);
+		Tessellator tessel = Tessellator.getInstance();
+		drawRect(tessel, x1, x2, y1, y2, u1, u2, v1, v2);
+		drawRect(tessel, x1, x2, y1, y1 + 1, u1, u2, topV, topV + 1/256.0);
+		drawRect(tessel, x1, x2, y2 - 1, y2, u1, u2, botV, botV + 1/256.0);
+	}
+
+	private static void drawRect(Tessellator tessel, int x1, int x2, int y1, int y2, double u1, double u2, double v1, double v2) {
+		BufferBuilder buffer = tessel.getBuffer();
+		buffer.begin(7, DefaultVertexFormats.POSITION_TEX);
+		buffer.pos(x1, y2, 0).tex(u1, v2).endVertex();
+		buffer.pos(x2, y2, 0).tex(u2, v2).endVertex();
+		buffer.pos(x2, y1, 0).tex(u2, v1).endVertex();
+		buffer.pos(x1, y1, 0).tex(u1, v1).endVertex();
+		tessel.draw();
 	}
 }

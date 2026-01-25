@@ -11,9 +11,9 @@ import yeelp.stoicdummy.ModConsts;
 public enum Translations {
 	INSTANCE;
 	
-	private Map<String, Translator> cache = Maps.newHashMap();
+	private final Map<String, Translator> cache = Maps.newHashMap();
 	
-	public class Translator {
+	public static class Translator {
 		private final String root;
 		
 		protected Translator(String root) {
@@ -39,6 +39,10 @@ public enum Translations {
 		protected String getKey(String key) {
 			return String.format("%s.%s.%s", this.root, ModConsts.MODID, key);
 		}
+
+		public Translator deriveSubTranslator(String subRoot) {
+			return Translations.INSTANCE.getTranslator(this.root, subRoot);
+		}
 	}
 	
 	public String translate(String root, String key) {
@@ -47,5 +51,13 @@ public enum Translations {
 	
 	public Translator getTranslator(String root) {
 		return this.cache.compute(root, (r, t) -> t == null ? new Translator(r) : t);
+	}
+
+	public Translator getTranslator(String root, String...subRoots) {
+		StringBuilder sb = new StringBuilder().append(root);
+		for(String s : subRoots) {
+			sb.append(".").append(s);
+		}
+		return this.getTranslator(sb.toString());
 	}
 }

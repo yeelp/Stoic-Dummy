@@ -16,7 +16,7 @@ public interface ModConsts {
 	Iterable<EntityEquipmentSlot> ARMOR_SLOTS = Lists.newArrayList(EntityEquipmentSlot.HEAD, EntityEquipmentSlot.CHEST, EntityEquipmentSlot.LEGS, EntityEquipmentSlot.FEET);
 	Iterable<EntityEquipmentSlot> HAND_SLOTS = Lists.newArrayList(EntityEquipmentSlot.MAINHAND, EntityEquipmentSlot.OFFHAND);
 
-	public interface DummyNBT {
+	interface DummyNBT {
 		String HAND = "righthanded";
 		String ROTATION = "rotation";
 		String INVENTORY = "inventory";
@@ -39,7 +39,7 @@ public interface ModConsts {
 		byte TAG_COMPOUND_ID = new NBTTagCompound().getId();
 	}
 	
-	public interface TranslationKeys {
+	interface TranslationKeys {
 		String HISTORY_ROOT = "history";
 		String ATTACKER = "attacker";
 		String TRUE_ATTACKER = "trueAttacker";
@@ -59,5 +59,24 @@ public interface ModConsts {
 		String POTION_EFFECTS_HELP = "potionEffectsHelp";
 		String ATTRIBUTE_HELP = "attributeHelp";
 		String CLEAR_HISTORY_HELP = "clearHelp";
+		String INVENTORY_HELP = "inventoryHelp";
+		String HISTORY_HELP = "historyHelp";
+	}
+
+	interface DDDConsts {
+		String DDD_ID = "distinctdamagedescriptions";
+		String DDD_TITLE = "Distinct Damage Descriptions";
+		String DDD_ID_SHORT = "ddd";
+
+		byte DDD_DAMAGE_INSTANCE_ID = 2;
+		String INITIAL_DIST = "initialDist";
+		String FINAL_DIST = "finalDist";
+		String DAMAGE_TYPE = "type";
+		String AMOUNT = "amount";
+
+		interface DDDTranslationKeys {
+			String INITIAL_DIST = "initialDist";
+			String FINAL_DIST = "finalDist";
+		}
 	}
 }

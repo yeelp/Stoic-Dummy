@@ -34,7 +34,7 @@ public class StoicDummyStatusResponse implements IMessage {
 			this.tag = pbuf.readCompoundTag();
 		}
 		catch(IOException e) {
-			new RuntimeException("Failed to read NBT Tag Compound.", e);
+			throw new RuntimeException("Failed to read NBT Tag Compound.", e);
 		}
 	}
 
@@ -46,11 +46,10 @@ public class StoicDummyStatusResponse implements IMessage {
 	}
 	
 	public static final class StoicDummyStatusResponseReceiver implements IMessageHandler<StoicDummyStatusResponse, IMessage> {
-		@Override
+		@SuppressWarnings("DataFlowIssue")
+        @Override
 		public IMessage onMessage(StoicDummyStatusResponse message, MessageContext ctx) {
-			FMLCommonHandler.instance().getWorldThread(ctx.netHandler).addScheduledTask(() -> {
-				((EntityStoicDummy) FMLClientHandler.instance().getWorldClient().getEntityByID(message.id)).readEntityFromNBT(message.tag);
-			});
+			FMLCommonHandler.instance().getWorldThread(ctx.netHandler).addScheduledTask(() -> ((EntityStoicDummy) FMLClientHandler.instance().getWorldClient().getEntityByID(message.id)).readEntityFromNBT(message.tag));
 			return null;
 		}
 	}

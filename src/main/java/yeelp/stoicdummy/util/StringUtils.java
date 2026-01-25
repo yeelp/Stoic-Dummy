@@ -8,7 +8,8 @@ public final class StringUtils {
 		throw new RuntimeException("class not to be instantiated!");
 	}
 	
-	public static String convertToRomanNumerals(int a) {
+	@SuppressWarnings("StatementWithEmptyBody")
+    public static String convertToRomanNumerals(int a) {
 		if(a <= 0) {
 			return "";
 		}
@@ -28,7 +29,7 @@ public final class StringUtils {
 			rem -= 40;
 		}
 		for(; rem >= 10; sb.append("X"), rem -= 10);
-		if(rem >= 9) {
+		if(rem == 9) {
 			sb.append("IX");
 			rem -= 9;
 		}
@@ -36,7 +37,7 @@ public final class StringUtils {
 			sb.append("V");
 			rem -= 5;
 		}
-		else if (rem >= 4) {
+		else if (rem == 4) {
 			sb.append("IV");
 			rem -= 4;
 		}

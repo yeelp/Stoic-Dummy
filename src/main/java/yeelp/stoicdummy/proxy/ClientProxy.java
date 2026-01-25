@@ -9,9 +9,11 @@ import yeelp.stoicdummy.SDLogger;
 import yeelp.stoicdummy.entity.EntityStoicDummy;
 import yeelp.stoicdummy.render.entity.RenderStoicDummy;
 
+@SuppressWarnings("unused")
 public final class ClientProxy extends Proxy {
 	
-	@Override
+	@SuppressWarnings("DataFlowIssue")
+    @Override
 	public void preInit() {
 		super.preInit();
 		ModelLoader.setCustomModelResourceLocation(Proxy.dummyItem, 0, new ModelResourceLocation(Proxy.dummyItem.getRegistryName(), "inventory"));

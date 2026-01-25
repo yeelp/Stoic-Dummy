@@ -2,6 +2,7 @@ package yeelp.stoicdummy.item;
 
 import java.util.List;
 
+import mcp.MethodsReturnNonnullByDefault;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
@@ -22,6 +23,11 @@ import net.minecraft.world.World;
 import yeelp.stoicdummy.ModConsts;
 import yeelp.stoicdummy.entity.EntityStoicDummy;
 
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
+
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public final class StoicDummyItem extends Item {
 	
 	private static final String ID = "stoicdummyitem";
@@ -35,7 +41,7 @@ public final class StoicDummyItem extends Item {
 	}
 	
 	@Override
-	public void addInformation(ItemStack stack, World worldIn, List<String> tooltip, ITooltipFlag flagIn) {
+	public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn) {
 		tooltip.add(INFO.getFormattedText());
 		super.addInformation(stack, worldIn, tooltip, flagIn);
 	}

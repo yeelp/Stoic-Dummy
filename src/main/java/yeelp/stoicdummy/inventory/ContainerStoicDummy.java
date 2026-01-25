@@ -1,9 +1,6 @@
 package yeelp.stoicdummy.inventory;
 
-import java.util.List;
-
 import com.google.common.collect.Lists;
-
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.EnumCreatureAttribute;
 import net.minecraft.entity.player.EntityPlayer;
@@ -26,19 +23,24 @@ import yeelp.stoicdummy.network.MessageType;
 import yeelp.stoicdummy.network.StoicDummyCreatureAttributeMessage;
 import yeelp.stoicdummy.network.StoicDummyPotionMessage;
 
+import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.List;
+
 public class ContainerStoicDummy extends Container {
 	
 	private final StoicDummyInventory inventory;
 	private String[] potionEffectToAdd;
 	private int amplifierSelected = -1;
-	private List<DummySlot> dummySlots;
+	private final List<DummySlot> dummySlots;
 	private static final int SLOT_WIDTH = 18;
-	private static final int X_PADDING = 8;
-	private static final int Y_PADDING = 172;
+	private static final int X_PADDING = -72;
+	private static final int Y_PADDING = 157;
 	private static final int HOTBAR_Y_OFFSET = 40;
 	private static final int DUMMY_INV_Y_OFFSET = -84;
 	
-	public ContainerStoicDummy(IInventory playerInventory, StoicDummyInventory dummyInventory) {
+	@SuppressWarnings("StatementWithEmptyBody")
+    public ContainerStoicDummy(IInventory playerInventory, StoicDummyInventory dummyInventory) {
 		this.inventory = dummyInventory;
 		this.dummySlots = Lists.newArrayList();
 		
@@ -54,6 +56,7 @@ public class ContainerStoicDummy extends Container {
 	}
 
 	@Override
+	@ParametersAreNonnullByDefault
 	public boolean canInteractWith(EntityPlayer playerIn) {
 		return !this.inventory.dummyOwner.isDead && this.inventory.dummyOwner.getDistance(playerIn) < 8.0f;
 	}
@@ -120,17 +123,17 @@ public class ContainerStoicDummy extends Container {
 	
 	public Iterable<PotionEffect> getPotionEffects() {
 		List<PotionEffect> effects = Lists.newArrayList();
-		this.inventory.dummyOwner.getPermanentPotions().forEach((potion) -> {
-			effects.add(this.inventory.dummyOwner.getActivePotionEffect(potion));
-		});
+		this.inventory.dummyOwner.getPermanentPotions().forEach((potion) -> effects.add(this.inventory.dummyOwner.getActivePotionEffect(potion)));
 		return effects;
 	}
 	
 	@Override
+	@Nonnull
+	@ParametersAreNonnullByDefault
 	public ItemStack transferStackInSlot(EntityPlayer playerIn, int index) {
 		Slot slot = this.getSlot(index);
 		ItemStack copy = ItemStack.EMPTY;
-		if(slot != null && slot.getHasStack()) {
+		if(slot.getHasStack()) {
 			ItemStack stack = slot.getStack();
 			copy = stack.copy();
 			if(slot instanceof DummySlot && !this.mergeItemStack(stack, 6, this.inventorySlots.size(), false)) {
@@ -163,11 +166,13 @@ public class ContainerStoicDummy extends Container {
 		
 		@Override
 		public abstract int getSlotStackLimit();
-		
-		@Override
+
+        @SuppressWarnings("NullableProblems")
+        @Override
 		public abstract boolean isItemValid(ItemStack stack);
 		
 		@Override
+		@ParametersAreNonnullByDefault
 		public boolean canTakeStack(EntityPlayer playerIn) {
 			if(this.isAffectedByBindingCurse()) {
 				ItemStack stack = this.getStack();

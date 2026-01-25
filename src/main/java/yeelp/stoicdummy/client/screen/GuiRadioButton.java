@@ -1,13 +1,14 @@
 package yeelp.stoicdummy.client.screen;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.EnumCreatureAttribute;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
-final class GuiRadioButton extends GuiButton {
+@SideOnly(Side.CLIENT)
+final class GuiRadioButton extends StoicGuiButton {
 	
-	static final int BUTTON_WIDTH = 10;
+	static final int BUTTON_SIZE = 10;
 	enum CreatureAttributeDisplay {
 		DEFAULT(EnumCreatureAttribute.UNDEFINED),
 		UNDEAD(EnumCreatureAttribute.UNDEAD),
@@ -16,7 +17,7 @@ final class GuiRadioButton extends GuiButton {
 		
 		private final EnumCreatureAttribute mapsTo;
 		
-		private CreatureAttributeDisplay(EnumCreatureAttribute attribute) {
+		CreatureAttributeDisplay(EnumCreatureAttribute attribute) {
 			this.mapsTo = attribute;
 		}
 		
@@ -28,7 +29,7 @@ final class GuiRadioButton extends GuiButton {
 	private boolean set = false;
 	private final GuiRadioButton.CreatureAttributeDisplay display;
 	public GuiRadioButton(GuiRadioButton.CreatureAttributeDisplay display, int buttonId, int x, int y) {
-		super(buttonId, x, y, BUTTON_WIDTH, BUTTON_WIDTH, display.name());
+		super(buttonId, x, y, BUTTON_SIZE, BUTTON_SIZE, display.name());
 		this.display = display;
 	}
 	
@@ -41,26 +42,24 @@ final class GuiRadioButton extends GuiButton {
 		this.set = false;
 		this.enabled = true;
 	}
-	
+
+	@Override
+	protected int getU() {
+		return 0;
+	}
+
+	@Override
+	protected int getV() {
+		return this.set ? 20 : this.hovered ? 10 : 0;
+	}
+
+	@Override
+	protected void drawText(Minecraft mc) {
+		mc.fontRenderer.drawString(this.displayString, this.x + this.width + 3, this.y + (this.height - 8) / 2, 0x404040);
+	}
+
 	GuiRadioButton.CreatureAttributeDisplay getDisplay() {
 		return this.display;
-	}
-	
-	@Override
-	public void drawButton(Minecraft mc, int mouseX, int mouseY, float partialTicks) {
-		if(this.visible) {
-			mc.getTextureManager().bindTexture(BUTTON_TEXTURES);
-			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-			this.hovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height;
-			int state = this.getHoverState(this.hovered);
-			GlStateManager.enableBlend();
-			GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-			GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-			this.drawTexturedModalRect(this.x, this.y, 0, 46 + state * 20, this.width / 2, this.height);
-			this.drawTexturedModalRect(this.x + this.width / 2, this.y, 200 - this.width / 2, 46 + state * 20, this.width / 2, this.height);
-			this.mouseDragged(mc, mouseX, mouseY);
-			mc.fontRenderer.drawStringWithShadow(this.displayString, this.x + this.width + 3, this.y + (this.height - 8) / 2, 0xffffffff);
-		}
 	}
 	
 }

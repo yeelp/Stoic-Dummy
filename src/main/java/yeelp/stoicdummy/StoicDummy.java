@@ -3,6 +3,7 @@ package yeelp.stoicdummy;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.Mod.Instance;
@@ -15,6 +16,7 @@ import net.minecraftforge.fml.common.network.NetworkRegistry;
 import yeelp.stoicdummy.client.screen.GuiScreenStoicDummy;
 import yeelp.stoicdummy.entity.EntityStoicDummy;
 import yeelp.stoicdummy.handler.NetworkHandler;
+import yeelp.stoicdummy.integration.ddd.DDDIntegration;
 import yeelp.stoicdummy.inventory.ContainerStoicDummy;
 import yeelp.stoicdummy.inventory.StoicDummyInventory;
 import yeelp.stoicdummy.network.MessageType;
@@ -28,7 +30,9 @@ public final class StoicDummy {
 	
 	@SidedProxy(clientSide = ModConsts.CLIENT_PROXY, serverSide = ModConsts.SERVER_PROXY)
 	public static Proxy proxy;
-	
+
+	private static boolean hasDDD = false;
+
 	@SuppressWarnings("static-method")
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent event) {
@@ -66,11 +70,19 @@ public final class StoicDummy {
 	public void init(@SuppressWarnings("unused") FMLInitializationEvent event) {
 		NetworkHandler.init();
 		proxy.init();
+		if(Loader.isModLoaded(ModConsts.DDDConsts.DDD_ID)) {
+			DDDIntegration.init();
+			hasDDD = true;
+		}
 	}
 	
 	@SuppressWarnings("static-method")
 	@EventHandler
 	public void postInit(@SuppressWarnings("unused") FMLPostInitializationEvent event) {
 		proxy.postInit();
+	}
+
+	public static boolean hasDDD() {
+		return hasDDD;
 	}
 }

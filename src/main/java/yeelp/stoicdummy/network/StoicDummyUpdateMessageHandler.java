@@ -7,7 +7,8 @@ import yeelp.stoicdummy.entity.EntityStoicDummy;
 
 public class StoicDummyUpdateMessageHandler implements IMessageHandler<StoicDummyUpdateMessage, IMessage> {
 
-	@Override
+	@SuppressWarnings("DataFlowIssue")
+    @Override
 	public IMessage onMessage(StoicDummyUpdateMessage message, MessageContext ctx) {
 		EntityStoicDummy dummy = (EntityStoicDummy) ctx.getServerHandler().player.world.getEntityByID(message.getDummyID());
 		message.getMessageType().handle(dummy, message.getMessageContents());			

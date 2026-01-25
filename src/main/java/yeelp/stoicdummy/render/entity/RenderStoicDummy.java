@@ -13,20 +13,23 @@ import yeelp.stoicdummy.ModConsts;
 import yeelp.stoicdummy.entity.EntityStoicDummy;
 import yeelp.stoicdummy.render.model.ModelStoicDummy;
 
+import javax.annotation.ParametersAreNonnullByDefault;
+
 @SideOnly(Side.CLIENT)
+@ParametersAreNonnullByDefault
 public final class RenderStoicDummy extends RenderLivingBase<EntityStoicDummy> {
 
-	static enum Texture {
+	enum Texture {
 		BASE("dummy"),
 		FACE("dummyeyes");
 		
 		private final String filename;
 		
-		private Texture(String filename) {
+		Texture(String filename) {
 			this.filename = filename;
 		}
 		
-		private final String getPath() {
+		private String getPath() {
 			return String.format("textures/entity/%s.png", this.filename);
 		}
 		
@@ -39,7 +42,7 @@ public final class RenderStoicDummy extends RenderLivingBase<EntityStoicDummy> {
 	
 	public RenderStoicDummy(RenderManager manager) {
 		super(manager, new ModelStoicDummy(), 0.5f);
-		this.addLayer(this.new LayerDummyFace(this));
+		this.addLayer(new LayerDummyFace(this));
 	}
 	
 	@Override
@@ -53,15 +56,16 @@ public final class RenderStoicDummy extends RenderLivingBase<EntityStoicDummy> {
 	}
 	
 	@SideOnly(Side.CLIENT)
-	private final class LayerDummyFace implements LayerRenderer<EntityStoicDummy> {
+	private static final class LayerDummyFace implements LayerRenderer<EntityStoicDummy> {
 		private final RenderStoicDummy dummyRender;
-		private ResourceLocation texture = Texture.FACE.toResourceLocation();
+		private final ResourceLocation texture = Texture.FACE.toResourceLocation();
 		
 		public LayerDummyFace(RenderStoicDummy render) {
 			this.dummyRender = render;
 		}
 
-		@Override
+		@SuppressWarnings({"IntegerDivisionInFloatingPointContext", "ConstantValue"})
+        @Override
 		public void doRenderLayer(EntityStoicDummy entitylivingbaseIn, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, float scale) {
 			//taken from LayerSpiderEyes#doRenderLayer
 			this.dummyRender.bindTexture(this.texture);

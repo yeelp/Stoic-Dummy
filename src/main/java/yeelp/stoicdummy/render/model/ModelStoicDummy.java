@@ -7,6 +7,8 @@ import net.minecraft.entity.Entity;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import javax.annotation.ParametersAreNonnullByDefault;
+
 /**
  * Generated with BlockBench <3
  * 
@@ -14,13 +16,16 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  *
  */
 @SideOnly(Side.CLIENT)
+@ParametersAreNonnullByDefault
 public final class ModelStoicDummy extends ModelBase {
 	private final ModelRenderer stand;
 	private final ModelRenderer cover;
 	private final ModelRenderer bb_main;
 	private final ModelRenderer base;
-	private final ModelRenderer cube_r1;
-	private final ModelRenderer cube_r2;
+	@SuppressWarnings("FieldCanBeLocal")
+    private final ModelRenderer cube_r1;
+	@SuppressWarnings("FieldCanBeLocal")
+    private final ModelRenderer cube_r2;
 
 	public ModelStoicDummy() {
 		this.textureWidth = 128;

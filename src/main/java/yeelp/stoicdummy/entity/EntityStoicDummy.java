@@ -11,6 +11,7 @@ import com.google.common.base.Predicates;
 import com.google.common.collect.Maps;
 
 import io.netty.buffer.ByteBuf;
+import mcp.MethodsReturnNonnullByDefault;
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -52,7 +53,12 @@ import yeelp.stoicdummy.util.DamageHistory;
 import yeelp.stoicdummy.util.InventoryUtils;
 import yeelp.stoicdummy.util.SimpleDamageInstance.SimpleDamageInstanceBuilder;
 
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
+
 @Mod.EventBusSubscriber(modid = ModConsts.MODID)
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public final class EntityStoicDummy extends EntityLivingBase implements IEntityAdditionalSpawnData {
 	public static final ResourceLocation LOC = new ResourceLocation(ModConsts.MODID, "stoicdummy");
 	private static final int KILL_IN_VOID_THRESHOLD = -150;
@@ -60,8 +66,8 @@ public final class EntityStoicDummy extends EntityLivingBase implements IEntityA
 	private EnumCreatureAttribute currentCreatureAttribute = EnumCreatureAttribute.UNDEFINED;
 	private final DummyInventory inventory;
 	private final DamageHistory history;
-	private int rotationTarget = 0;
-	private Map<Potion, Integer> activePotions;
+	private int rotationTarget;
+	private final Map<Potion, Integer> activePotions;
 	private AbstractDamageInstanceBuilder damageBuilder;
 	
 	private static BiFunction<DamageSource, Float, AbstractDamageInstanceBuilder> builderSupplier = SimpleDamageInstanceBuilder::new;
@@ -188,7 +194,11 @@ public final class EntityStoicDummy extends EntityLivingBase implements IEntityA
 			this.history.getLatestEntry().map(Functions.toStringFunction()).ifPresent(SDLogger::debug);
 		}
 	}
-	
+
+	public AbstractDamageInstanceBuilder getDamageBuilder() {
+		return this.damageBuilder;
+	}
+
 	public Iterable<AbstractDamageInstance> getDamageHistory() {
 		return this.history;
 	}
@@ -229,7 +239,7 @@ public final class EntityStoicDummy extends EntityLivingBase implements IEntityA
 
 	@Override
 	public void knockBack(Entity entityIn, float strength, double xRatio, double zRatio) {
-		return;
+		//no knockback
 	}
 	
 	@Override
@@ -261,12 +271,13 @@ public final class EntityStoicDummy extends EntityLivingBase implements IEntityA
 		return this.inventory.values().stream().allMatch(ItemStack::isEmpty);
 	}
 	
-	private boolean hasExactPotionActive(Map.Entry<Potion, Integer> entry) {
+	@SuppressWarnings("DataFlowIssue")
+    private boolean hasExactPotionActive(Map.Entry<Potion, Integer> entry) {
 		return this.isPotionActive(entry.getKey()) && this.getActivePotionEffect(entry.getKey()).getAmplifier() == entry.getValue();
 	}
 	
 	public boolean hasPermanentPotionActive(Potion potion, int amplifier) {
-		return this.activePotions.containsKey(potion) ? this.activePotions.get(potion) == amplifier : false;
+		return this.activePotions.containsKey(potion) && this.activePotions.get(potion) == amplifier;
 	}
 	
 	public Iterable<Potion> getPermanentPotions() {
@@ -275,7 +286,7 @@ public final class EntityStoicDummy extends EntityLivingBase implements IEntityA
 	
 	public void addPermanentPotionEffect(Potion potion, int amplifier) {
 		//box to avoid NPE for null return of put
-		if(Integer.valueOf(amplifier) != this.activePotions.put(potion, amplifier)) {
+		if(!Integer.valueOf(amplifier).equals(this.activePotions.put(potion, amplifier))) {
 			this.world.playSound(null, this.getPosition(), SoundEvents.BLOCK_BREWING_STAND_BREW, SoundCategory.BLOCKS, 0.75f, (float) (0.4f * Math.random() + 0.8f));
 		}
 	}
@@ -284,8 +295,8 @@ public final class EntityStoicDummy extends EntityLivingBase implements IEntityA
 		this.activePotions.remove(potion);
 		this.removeActivePotionEffect(potion);
 	}
-	
-	@Override
+
+    @Override
 	public void writeEntityToNBT(NBTTagCompound compound) {
 		super.writeEntityToNBT(compound);
 		compound.setBoolean(DummyNBT.HAND, this.hand == EnumHandSide.RIGHT);
@@ -320,7 +331,8 @@ public final class EntityStoicDummy extends EntityLivingBase implements IEntityA
 			this.history.readFromNBT(compound.getTagList(DummyNBT.DAMAGE_HISTORY, DummyNBT.TAG_COMPOUND_ID));
 		}
 	}
-	
+
+	@SuppressWarnings("DataFlowIssue")
 	private NBTTagList writePermanentPotionsToNBT() {
 		NBTTagList lst = new NBTTagList();
 		this.activePotions.forEach((potion, amp) -> {
@@ -346,7 +358,7 @@ public final class EntityStoicDummy extends EntityLivingBase implements IEntityA
 		});
 	}
 
-	private final class DummyInventory extends EnumMap<EntityEquipmentSlot, ItemStack> {
+	private static final class DummyInventory extends EnumMap<EntityEquipmentSlot, ItemStack> {
 		DummyInventory() {
 			super(EntityEquipmentSlot.class);
 			for(EntityEquipmentSlot slot : EntityEquipmentSlot.values()) {
@@ -359,6 +371,7 @@ public final class EntityStoicDummy extends EntityLivingBase implements IEntityA
 		}
 
 		@Override
+		@Nullable
 		public ItemStack put(EntityEquipmentSlot key, ItemStack value) {
 			return super.put(key, Objects.requireNonNull(value));
 		}
@@ -395,5 +408,9 @@ public final class EntityStoicDummy extends EntityLivingBase implements IEntityA
 		}
 		EntityStoicDummy dummy = (EntityStoicDummy) entity;
 		dummy.damageBuilder.setFinalDamageTaken(evt.getAmount());
+	}
+
+	public static void setHistoryBuilder(BiFunction<DamageSource, Float, AbstractDamageInstanceBuilder> builder) {
+		builderSupplier = builder;
 	}
 }

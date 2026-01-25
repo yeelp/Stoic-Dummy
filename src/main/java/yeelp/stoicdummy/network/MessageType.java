@@ -65,7 +65,7 @@ public enum MessageType {
 		
 		@Override
 		void handle(EntityStoicDummy dummy, StoicDummyMessageContents contents) {
-			return;
+			//do nothing
 		}
 	};
 	
@@ -76,8 +76,8 @@ public enum MessageType {
 	byte encodeType() {
 		return (byte) this.ordinal();
 	}
-	
-	public void sendMessage(EntityStoicDummy dummy, StoicDummyMessageContents contents) {
+
+    public void sendMessage(EntityStoicDummy dummy, StoicDummyMessageContents contents) {
 		NetworkHandler.INSTANCE.sendToServer(new StoicDummyUpdateMessage(this, dummy, contents));
 	}
 	

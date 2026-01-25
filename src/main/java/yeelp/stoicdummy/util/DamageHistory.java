@@ -1,25 +1,28 @@
 package yeelp.stoicdummy.util;
 
+import com.google.common.collect.Iterators;
+import com.google.common.collect.Lists;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import yeelp.stoicdummy.ModConsts.DDDConsts;
+import yeelp.stoicdummy.ModConsts.DummyNBT;
+import yeelp.stoicdummy.ModConsts.TranslationKeys;
+import yeelp.stoicdummy.SDLogger;
+import yeelp.stoicdummy.StoicDummy;
+import yeelp.stoicdummy.config.ModConfig;
+import yeelp.stoicdummy.integration.ddd.DDDDamageInstance;
+import yeelp.stoicdummy.util.Translations.Translator;
+
+import javax.annotation.Nonnull;
 import java.util.Deque;
 import java.util.Iterator;
 import java.util.Optional;
 
-import com.google.common.collect.Iterators;
-import com.google.common.collect.Lists;
-
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
-import yeelp.stoicdummy.ModConsts.DummyNBT;
-import yeelp.stoicdummy.ModConsts.TranslationKeys;
-import yeelp.stoicdummy.SDLogger;
-import yeelp.stoicdummy.config.ModConfig;
-import yeelp.stoicdummy.util.Translations.Translator;
-
 public final class DamageHistory implements Iterable<AbstractDamageInstance> {
 	
-	protected static final Translator TRANSLATOR = Translations.INSTANCE.getTranslator(TranslationKeys.HISTORY_ROOT);
+	private static final Translator TRANSLATOR = Translations.INSTANCE.getTranslator(TranslationKeys.HISTORY_ROOT);
 
-	protected final Deque<AbstractDamageInstance> delegate;
+	private final Deque<AbstractDamageInstance> delegate;
 	
 	public DamageHistory() {
 		this.delegate = Lists.newLinkedList();
@@ -50,6 +53,7 @@ public final class DamageHistory implements Iterable<AbstractDamageInstance> {
 	}
 	
 	@Override
+	@Nonnull
 	public Iterator<AbstractDamageInstance> iterator() {
 		return this.delegate.iterator();
 	}
@@ -65,8 +69,11 @@ public final class DamageHistory implements Iterable<AbstractDamageInstance> {
 		lst.forEach((nbt) -> {
 			NBTTagCompound compound = (NBTTagCompound) nbt;
 			byte type = compound.getByte(DummyNBT.TYPE);
-			if(type == SimpleDamageInstance.ID) {
-				this.add(new SimpleDamageInstance(compound));				
+			if(type == DDDConsts.DDD_DAMAGE_INSTANCE_ID && StoicDummy.hasDDD()) {
+				this.add(new DDDDamageInstance(compound));
+			}
+			else if(type == SimpleDamageInstance.ID || !StoicDummy.hasDDD()) {
+				this.add(new SimpleDamageInstance(compound));
 			}
 			else {
 				SDLogger.err("Invalid damage instance ID! {}", type);				
@@ -75,12 +82,7 @@ public final class DamageHistory implements Iterable<AbstractDamageInstance> {
 	}
 	
 	public Iterable<String> getNumberedHistory() {
-		return new Iterable<String>() {
-			@Override
-			public Iterator<String> iterator() {
-				return DamageHistory.this.new NumberedDamageHistoryIterator();
-			}
-		};
+		return () -> DamageHistory.this.new NumberedDamageHistoryIterator();
 	}
 	
 	private final class NumberedDamageHistoryIterator implements Iterator<String> {

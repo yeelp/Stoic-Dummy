@@ -1,7 +1,9 @@
 package yeelp.stoicdummy.util;
 
 import java.text.DecimalFormat;
+import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.function.Function;
 
 import com.google.common.collect.Lists;
@@ -17,6 +19,7 @@ import yeelp.stoicdummy.util.Translations.Translator;
 
 public abstract class AbstractDamageInstance {
 	protected static final Translator TRANSLATOR = Translations.INSTANCE.getTranslator(TranslationKeys.HISTORY_ROOT);
+	private static final ITextComponent SOURCE = TRANSLATOR.getComponent(TranslationKeys.SOURCE);
 	protected static final ITextComponent ATTACKER = TRANSLATOR.getComponent(TranslationKeys.ATTACKER);
 	protected static final ITextComponent TRUE_ATTACKER = TRANSLATOR.getComponent(TranslationKeys.TRUE_ATTACKER);
 	protected static final String SPLIT = ": ";
@@ -67,7 +70,8 @@ public abstract class AbstractDamageInstance {
 		return (f >= 1000 ? SCI_NOTATE : FORMAT_TWO_DECIMALS).format(f);
 	}
 	
-	protected static final <T, U> U mapIfNonNullElseGetDefault(T t, Function<T, U> function, U backup) {
+	@SuppressWarnings("SameParameterValue")
+    protected static <T, U> U mapIfNonNullElseGetDefault(T t, Function<T, U> function, U backup) {
 		if(t != null) {
 			return function.apply(t);
 		}
@@ -81,11 +85,22 @@ public abstract class AbstractDamageInstance {
 		return Lists.newArrayList(ATTACKER.getFormattedText(), this.getImmediateAttacker(), TRUE_ATTACKER.getFormattedText(), this.getTrueAttacker());
 	}
 	
-	protected static final String highlight(String s) {
-		return TextFormatting.YELLOW.toString()+s+TextFormatting.RESET.toString();
+	protected static String highlight(String s) {
+		return TextFormatting.YELLOW+s+TextFormatting.RESET;
 	}
 	
-	public abstract NBTTagCompound writeToNBT();
+	public final NBTTagCompound writeToNBT() {
+		NBTTagCompound compound = new NBTTagCompound();
+		compound.setString(DummyNBT.ATTACKER, this.getImmediateAttacker());
+		compound.setString(DummyNBT.TRUE_ATTACKER, this.getTrueAttacker());
+		compound.setString(DummyNBT.SOURCE, this.getSource());
+		compound.setFloat(DummyNBT.INITIAL_AMOUNT, this.getInitialDamage());
+		compound.setFloat(DummyNBT.FINAL_AMOUNT, this.getFinalDamage());
+		this.writeSpecificNBT(compound);
+		return compound;
+	}
+
+	protected abstract void writeSpecificNBT(NBTTagCompound compound);
 	
 	@Override
 	public final String toString() {
@@ -99,7 +114,27 @@ public abstract class AbstractDamageInstance {
 		return sb.toString();
 	}
 	
-	protected abstract Iterator<String> linesIterator();
+	protected final Iterator<String> linesIterator() {
+		List<String> lines = Lists.newArrayList();
+		boolean highlight = true;
+		StringBuilder sb = new StringBuilder();
+		for(String s : this.getAttackerStringComponents()) {
+			if(highlight) {
+				sb = new StringBuilder();
+				sb.append(highlight(s)).append(SPLIT);
+			}
+			else {
+				sb.append(s);
+				lines.add(sb.toString());
+			}
+			highlight = !highlight;
+		}
+		lines.add(highlight(SOURCE.getFormattedText()) + SPLIT + this.getSource());
+		lines.addAll(this.getSpecificInfoForIteration());
+		return lines.iterator();
+	}
+
+	protected abstract Collection<String> getSpecificInfoForIteration();
 	
 	public static abstract class AbstractDamageInstanceBuilder {
 		private final DamageSource src;

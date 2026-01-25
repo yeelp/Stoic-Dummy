@@ -2,7 +2,7 @@ package yeelp.stoicdummy.network;
 
 import net.minecraft.nbt.NBTTagCompound;
 
-abstract class StoicDummyMessageContents {
+public abstract class StoicDummyMessageContents {
 	
 	abstract NBTTagCompound writeMessageContents();
 }

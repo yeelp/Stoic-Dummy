@@ -40,11 +40,20 @@ sourceSets.main.java.srcDirs += 'java'
 repositories {
     maven { url = 'https://www.cursemaven.com' }
     mavenCentral()
+    maven {
+        name = "Progwml6 maven"
+        url = "https://dvs1.progwml6.com/files/maven/"
+    }
+    maven {
+        name = "ModMaven"
+        url = "https://modmaven.dev"
+    }
 }
 
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
     compileOnly fg.deobf("curse.maven:distinct-damage-descriptions-403617:7413993")
+    compileOnly "mezz.jei:jei_${jei_mc_version}:${jei_api_version}:api"
 }
 
 fancyGradle {

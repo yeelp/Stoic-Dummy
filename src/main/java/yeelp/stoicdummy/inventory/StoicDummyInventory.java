@@ -3,6 +3,7 @@ package yeelp.stoicdummy.inventory;
 import java.util.Arrays;
 import java.util.Objects;
 
+import mcp.MethodsReturnNonnullByDefault;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.inventory.IInventory;
@@ -12,6 +13,10 @@ import net.minecraft.util.text.TextComponentString;
 import yeelp.stoicdummy.entity.EntityStoicDummy;
 import yeelp.stoicdummy.util.InventoryUtils;
 
+import javax.annotation.ParametersAreNonnullByDefault;
+
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public final class StoicDummyInventory implements IInventory {
 
 	EntityStoicDummy dummyOwner;
@@ -91,7 +96,7 @@ public final class StoicDummyInventory implements IInventory {
 
 	@Override
 	public void markDirty() {
-		return;
+		//nothing
 	}
 
 	@Override
@@ -101,12 +106,12 @@ public final class StoicDummyInventory implements IInventory {
 
 	@Override
 	public void openInventory(EntityPlayer player) {
-		return;
+		//nothing
 	}
 
 	@Override
 	public void closeInventory(EntityPlayer player) {
-		return;
+		//nothing
 	}
 
 	@Override
@@ -126,7 +131,7 @@ public final class StoicDummyInventory implements IInventory {
 
 	@Override
 	public void setField(int id, int value) {
-		return;
+		//nothing
 	}
 
 	@Override
@@ -136,7 +141,7 @@ public final class StoicDummyInventory implements IInventory {
 
 	@Override
 	public void clear() {
-		Arrays.stream(EntityEquipmentSlot.values()).map(EntityEquipmentSlot::getSlotIndex).forEach((i) -> this.removeStackFromSlot(i));
+		Arrays.stream(EntityEquipmentSlot.values()).map(EntityEquipmentSlot::getSlotIndex).forEach(this::removeStackFromSlot);
 	}
 	
 

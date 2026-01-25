@@ -22,7 +22,8 @@ public final class StoicDummyPotionMessage extends StoicDummyMessageContents {
 		return this.amp;
 	}
 	
-	@Override
+	@SuppressWarnings("DataFlowIssue")
+    @Override
 	NBTTagCompound writeMessageContents() {
 		NBTTagCompound tag = new NBTTagCompound();
 		tag.setString(DummyNBT.POTION_NAME, this.potion.getRegistryName().toString());
