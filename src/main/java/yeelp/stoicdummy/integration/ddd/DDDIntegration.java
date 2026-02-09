@@ -9,7 +9,6 @@ import yeelp.distinctdamagedescriptions.api.DDDDamageType;
 import yeelp.distinctdamagedescriptions.event.calculation.UpdateAdaptiveResistanceEvent;
 import yeelp.distinctdamagedescriptions.event.classification.DetermineDamageEvent;
 import yeelp.distinctdamagedescriptions.registries.DDDRegistries;
-import yeelp.stoicdummy.ModConsts;
 import yeelp.stoicdummy.ModConsts.DDDConsts;
 import yeelp.stoicdummy.SDLogger;
 import yeelp.stoicdummy.entity.EntityStoicDummy;
@@ -17,7 +16,6 @@ import yeelp.stoicdummy.integration.ddd.DDDDamageInstance.DDDDamageInstanceBuild
 
 import java.util.Map;
 import java.util.function.BiConsumer;
-import java.util.function.BiFunction;
 import java.util.function.Function;
 
 public final class DDDIntegration {

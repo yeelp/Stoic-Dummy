@@ -9,7 +9,7 @@
   "updateUrl": "",
   "authorList": ${mod_author_list},
   "credits": "commanderduck16 for the commission",
-  "logoFile": "",
+  "logoFile": "assets/stoicdummy/images/StoicDummyLogo.png",
   "screenshots": [],
   "dependencies": []
 }
