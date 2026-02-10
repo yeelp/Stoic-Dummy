@@ -1,4 +1,4 @@
-![](images/StoicDummyLogo.png)
+![](https://raw.githubusercontent.com/yeelp/Stoic-Dummy/refs/heads/main/src/main/resources/assets/stoicdummy/images/StoicDummyLogo.png)
 ## [Stoic-Dummy]()
 
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/X8X5G4LPG) [![Patreon](https://i.imgur.com/JkRflNx.png)](https://www.patreon.com/join/Yeelp)
@@ -14,4 +14,17 @@
 
 This mod was commissioned by commanderduck16. You can commission your own mod by reaching out to me on Discord.
 
-Minecraft target dummy that accurately reports damage taken.
+Minecraft target dummy that accurately reports damage taken. Stoic Dummy will accurately report the damage taken, from what source, and also shows the initial damage taken and final damage taken (after potion effects and armor are applied). You can craft it with a handful of ingredients:
+
+![](https://github.com/yeelp/Stoic-Dummy/blob/main/images/crafting.png?raw=true)
+
+Everything is oredicted, and the skull can be any skull.
+
+Interacting with the dummy lets the player open its inventory, where the player can view a history of damage taken, equip armor to the dummy, and add *permanent* potion effects to the dummy. The player can also change the kind of creature the dummy counts as for the purposes of increasing damage dealt by enchantments such as Smite or Bane of Arthropods. Interacting while sneaking will cause the dummy to drop as an item. It'll also drop its entire inventory.
+
+![](https://github.com/yeelp/Stoic-Dummy/blob/main/images/ui.png?raw=true)
+
+### Distinct Damage Descriptions
+Stoic Dummy works with Distinct Damage Descriptions to report the damage taken by type. It'll highlight final damage either red or green if the damage was decreased or increased respectively (or white if unchanged).
+
+![](https://github.com/yeelp/Stoic-Dummy/blob/main/images/dddexample.png?raw=true)
